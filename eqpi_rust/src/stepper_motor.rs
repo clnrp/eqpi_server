@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use json::{self, JsonValue};
 
 pub struct StepperMotor {
     pinout: HashMap<String, i32>,
@@ -40,7 +41,11 @@ impl StepperMotor {
     }
 
     // get current status
-    pub fn get_status(self) {
-
+    pub fn get_status(&self) -> JsonValue {
+        let mut data = json::JsonValue::new_object();
+        data["working"] = self.working.into();
+        data["frequency"] = self.frequency.into();
+        data["direction"] = self.direction.into();
+        return data;
     }
 }
