@@ -5,6 +5,8 @@ use std::time::Duration;
 use chrono::Utc;
 use json::JsonValue;
 
+mod stepper_motor;
+
 fn handle_client(mut stream: TcpStream) -> Result<(), Error> {
     let mut buffer = [0; 512];
     let mut thread = true;
@@ -22,6 +24,7 @@ fn handle_client(mut stream: TcpStream) -> Result<(), Error> {
             Err(e) => (),
         }
 
+        // send current status
         if Utc::now().timestamp() - last_time > 5 {
             last_time = Utc::now().timestamp();
             let mut data = json::JsonValue::new_object();
@@ -38,8 +41,10 @@ fn handle_client(mut stream: TcpStream) -> Result<(), Error> {
 }
 
 fn main() {
-    let listener = TcpListener::bind("0.0.0.0:8888").expect("Could not bind");
+    let listener = TcpListener::bind("0.0.0.0:8888").expect("Could not bind"); // 0.0.0.0 allow remote access
     println!("EqPi server aguardando na porta 8888!");
+
+    // waiting for new connection
     for stream in listener.incoming() {
         match stream {
             Err(e) => eprintln!("failed: {}", e),
