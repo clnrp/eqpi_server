@@ -17,20 +17,24 @@ fn handle_client(mut stream: TcpStream, mut ra: Arc<Mutex<StepperMotor>>, mut de
     stream.set_read_timeout(Some(Duration::from_secs(1)))?;
     while thread == true {
         let mut lo_ra = ra.lock().unwrap();
-        
+
         match stream.read(&mut buffer) {
             Ok(n) if n > 0 => {
                 let received_data = &buffer[..n];
                 let str_data = std::str::from_utf8(&received_data).unwrap();
+                let parsed = json::parse(str_data).unwrap();
                 println!("Received data: {:?}", str_data);
-                lo_ra.set_frequency(90);
+                
+                if let Some(value) = parsed["frequency"].as_i32() {
+                    lo_ra.set_frequency(value);
+                }
             },
             Ok(_) => thread = false,
             Err(e) => (),
         }
 
         // send current status
-        if Utc::now().timestamp() - last_time > 5 {
+        if Utc::now().timestamp() - last_time > 2 {
             last_time = Utc::now().timestamp();
             let status = lo_ra.get_status();
             stream.write(status.dump().as_bytes());

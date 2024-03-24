@@ -36,13 +36,13 @@ impl StepperMotor {
         self.frequency = frequency;
     }
 
-    pub fn get_frequency(self) -> i32{
+    pub fn get_frequency(&self) -> i32{
         self.frequency
     }
 
     // get current status
     pub fn get_status(&self) -> JsonValue {
-        let mut data = json::JsonValue::new_object();
+        let mut data: JsonValue = json::JsonValue::new_object();
         data["working"] = self.working.into();
         data["frequency"] = self.frequency.into();
         data["direction"] = self.direction.into();
