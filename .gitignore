@@ -4,3 +4,11 @@ data
 dist
 kfilter.egg-info
 *.pyc
+debug/
+target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+.vscode/*
+eqpi_python/.vscode/*
+eqpi_rust/.vscode/*
