@@ -1,5 +1,8 @@
 use std::collections::HashMap;
 use json::{self, JsonValue};
+use std::thread;
+use std::time::Duration;
+use rppal::gpio::{Gpio, Level, Mode};
 
 pub struct StepperMotor {
     pinout: HashMap<String, i32>,
@@ -11,16 +14,13 @@ pub struct StepperMotor {
 
 impl StepperMotor {
 
-    pub fn new() -> Self {
-        let mut pinout = HashMap::new();
-        pinout.insert(String::from("pwm"), 0);
-        pinout.insert(String::from("direction"), 0);
-        pinout.insert(String::from("enable"), 0);
+    pub fn new(pinout: HashMap<String, i32>) -> Self {
         StepperMotor { pinout: pinout, dutycycle: 50, frequency: 60, direction: 0, working: false }
     }
 
     pub fn start(&mut self) {
-    
+        let mut pin = Gpio::new().unwrap().get(17).unwrap().into_output();
+        pin.set_high();
     }
 
     pub fn stop(&mut self) {
