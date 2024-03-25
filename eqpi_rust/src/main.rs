@@ -39,6 +39,18 @@ fn handle_client(mut stream: TcpStream, mut ra: Arc<Mutex<StepperMotor>>, mut de
                 let parsed = json::parse(str_data).unwrap();
                 println!("Received data: {:?}", str_data);
 
+                if parsed.has_key("start") {
+                    lo_ra.start();
+                }
+
+                if parsed.has_key("stop") {
+                    lo_ra.stop();
+                }
+                
+                if let Some(value) = parsed["direction"].as_u8() {
+                    lo_ra.set_direction(value);
+                }
+
                 if let Some(value) = parsed["frequency"].as_f64() {
                     lo_ra.set_frequency(value);
                 }
