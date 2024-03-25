@@ -39,7 +39,7 @@ fn handle_client(mut stream: TcpStream, mut ra: Arc<Mutex<StepperMotor>>, mut de
                 let parsed = json::parse(str_data).unwrap();
                 println!("Received data: {:?}", str_data);
 
-                if let Some(value) = parsed["frequency"].as_u32() {
+                if let Some(value) = parsed["frequency"].as_f64() {
                     lo_ra.set_frequency(value);
                 }
             },
@@ -62,11 +62,13 @@ fn handle_client(mut stream: TcpStream, mut ra: Arc<Mutex<StepperMotor>>, mut de
 }
 
 fn main() {
+    // right ascension (RA) axis
     let mut ra_pinout = HashMap::new();
     ra_pinout.insert(String::from("pwm"), RA_STEP);
     ra_pinout.insert(String::from("direction"), RA_DIR);
     ra_pinout.insert(String::from("enable"), RA_EN);
 
+    // declination (Dec) axis
     let mut dec_pinout = HashMap::new();
     dec_pinout.insert(String::from("pwm"), DEC_STEP);
     dec_pinout.insert(String::from("direction"), DEC_DIR);

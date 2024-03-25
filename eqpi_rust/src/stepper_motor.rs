@@ -3,19 +3,21 @@ use json::{self, JsonValue};
 use std::thread;
 use std::time::Duration;
 use rppal::gpio::{Gpio, Level, Mode};
+use rppal::pwm::{Channel, Polarity, Pwm};
 
 pub struct StepperMotor {
     pinout: HashMap<String, u8>,
-    dutycycle: u8,
-    frequency: u32,
+    dutycycle: f64,
+    frequency: f64,
     direction: u8,
     working: bool,
+    pwm: Pwm,
 }
 
 impl StepperMotor {
 
     pub fn new(pinout: HashMap<String, u8>) -> Self {
-        StepperMotor { pinout: pinout, dutycycle: 50, frequency: 60, direction: 0, working: false }
+        StepperMotor { pinout: pinout, dutycycle: 0.5, frequency: 60.0, direction: 0, working: false, pwm: Pwm::new(Channel::Pwm0).unwrap() }
     }
 
     pub fn start(&mut self) {
@@ -23,6 +25,9 @@ impl StepperMotor {
             let mut pin_en = Gpio::new().unwrap().get(*pin).unwrap().into_output();
             pin_en.set_high();
         }
+        self.pwm.set_frequency(self.frequency, self.dutycycle);
+        self.pwm.set_polarity(Polarity::Normal);
+        self.pwm.enable();
     }
 
     pub fn stop(&mut self) {
@@ -30,6 +35,7 @@ impl StepperMotor {
             let mut pin_en = Gpio::new().unwrap().get(*pin).unwrap().into_output();
             pin_en.set_low();
         }
+        self.pwm.disable();
     }
 
     // direction of rotation of the engine
@@ -45,11 +51,12 @@ impl StepperMotor {
         }
     }
 
-    pub fn set_frequency(&mut self, frequency: u32) {
+    pub fn set_frequency(&mut self, frequency: f64) {
         self.frequency = frequency;
+        self.pwm.set_frequency(self.frequency, self.dutycycle);
     }
 
-    pub fn get_frequency(&self) -> u32{
+    pub fn get_frequency(&self) -> f64{
         self.frequency
     }
 
