@@ -17,7 +17,13 @@ pub struct StepperMotor {
 impl StepperMotor {
 
     pub fn new(pinout: HashMap<String, u8>) -> Self {
-        StepperMotor { pinout: pinout, dutycycle: 0.5, frequency: 60.0, direction: 0, working: false, pwm: Pwm::new(Channel::Pwm0).unwrap() }
+        let mut channel: Channel = Channel::Pwm0; 
+        if let Some(pin) = pinout.get("DEC_STEP") {
+            if *pin == 18 {
+                channel = Channel::Pwm1;
+            }
+        }
+        StepperMotor { pinout: pinout, dutycycle: 0.5, frequency: 60.0, direction: 0, working: false, pwm: Pwm::new(channel).unwrap() }
     }
 
     pub fn start(&mut self) {
@@ -28,6 +34,7 @@ impl StepperMotor {
         self.pwm.set_frequency(self.frequency, self.dutycycle);
         self.pwm.set_polarity(Polarity::Normal);
         self.pwm.enable();
+        self.working = true;
     }
 
     pub fn stop(&mut self) {
@@ -36,6 +43,7 @@ impl StepperMotor {
             pin_en.set_low();
         }
         self.pwm.disable();
+        self.working = false;
     }
 
     // direction of rotation of the engine
