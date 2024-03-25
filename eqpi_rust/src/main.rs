@@ -10,18 +10,18 @@ use std::collections::HashMap;
 use json;
 use stepper_motor::StepperMotor;
 
-const RA_DIR: i32 = 13;
-const RA_STEP: i32 = 19;
-const RA_EN: i32 = 12;
-const RA_M1: i32 = 16;
-const RA_M2: i32 = 17;
-const RA_M3: i32 = 20;
-const DEC_DIR: i32 = 24;
-const DEC_STEP: i32 = 18;
-const DEC_EN: i32 = 4;
-const DEC_M1: i32 = 21;
-const DEC_M2: i32 = 22;
-const DEC_M3: i32 = 27;
+const RA_DIR: u8 = 13;
+const RA_STEP: u8 = 19;
+const RA_EN: u8 = 12;
+const RA_M1: u8 = 16;
+const RA_M2: u8 = 17;
+const RA_M3: u8 = 20;
+const DEC_DIR: u8 = 24;
+const DEC_STEP: u8 = 18;
+const DEC_EN: u8 = 4;
+const DEC_M1: u8 = 21;
+const DEC_M2: u8 = 22;
+const DEC_M3: u8 = 27;
 
 fn handle_client(mut stream: TcpStream, mut ra: Arc<Mutex<StepperMotor>>, mut dec: Arc<Mutex<StepperMotor>>) -> Result<(), Error> {
     let mut buffer = [0; 512];
@@ -39,7 +39,7 @@ fn handle_client(mut stream: TcpStream, mut ra: Arc<Mutex<StepperMotor>>, mut de
                 let parsed = json::parse(str_data).unwrap();
                 println!("Received data: {:?}", str_data);
 
-                if let Some(value) = parsed["frequency"].as_i32() {
+                if let Some(value) = parsed["frequency"].as_u32() {
                     lo_ra.set_frequency(value);
                 }
             },
@@ -75,8 +75,8 @@ fn main() {
     let RA = Arc::new(Mutex::new(StepperMotor::new(ra_pinout)));
     let DEC = Arc::new(Mutex::new(StepperMotor::new(dec_pinout)));
 
-    let listener = TcpListener::bind("0.0.0.0:8888").expect("Could not bind"); // 0.0.0.0 allow remote access
-    println!("EqPi server aguardando na porta 8888!");
+    let listener = TcpListener::bind("0.0.0.0:2020").expect("Could not bind"); // 0.0.0.0 allow remote access
+    println!("EqPi server aguardando na porta 2020!");
 
     // waiting for new connection
     for stream in listener.incoming() {
