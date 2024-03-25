@@ -26,11 +26,14 @@ impl StepperMotor {
         StepperMotor { pinout: pinout, dutycycle: 0.5, frequency: 60.0, direction: 0, working: false, pwm: Pwm::new(channel).unwrap() }
     }
 
-    pub fn start(&mut self) {
+    pub fn start(&mut self, frequency: f64, direction: u8) {
         if let Some(pin) = self.pinout.get("RA_EN") {
             let mut pin_en = Gpio::new().unwrap().get(*pin).unwrap().into_output();
             pin_en.set_high();
         }
+        self.frequency = frequency;
+        self.direction = direction;
+        self.set_direction(direction);
         self.pwm.set_frequency(self.frequency, self.dutycycle);
         self.pwm.set_polarity(Polarity::Normal);
         self.pwm.enable();

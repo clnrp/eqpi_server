@@ -31,6 +31,7 @@ fn handle_client(mut stream: TcpStream, mut ra: Arc<Mutex<StepperMotor>>, mut de
     stream.set_read_timeout(Some(Duration::from_secs(1)))?;
     while thread == true {
         let mut lo_ra = ra.lock().unwrap();
+        let mut lo_dec = dec.lock().unwrap();
 
         match stream.read(&mut buffer) {
             Ok(n) if n > 0 => {
@@ -40,7 +41,9 @@ fn handle_client(mut stream: TcpStream, mut ra: Arc<Mutex<StepperMotor>>, mut de
                 println!("Received data: {:?}", str_data);
 
                 if parsed.has_key("start") {
-                    lo_ra.start();
+                    let frequency = parsed["frequency"].as_f64().unwrap();
+                    let direction = parsed["direction"].as_u8().unwrap();
+                    lo_ra.start(frequency, direction);
                 }
 
                 if parsed.has_key("stop") {
